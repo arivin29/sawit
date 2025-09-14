@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sawit-ai"
+version = "0.1.0"
+description = "YOLOv8 + Roboflow pipeline for palm fruit ripeness (detect/classify)"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "DEVETEK" }]
+license = { text = "Proprietary" }
+keywords = ["yolov8", "roboflow", "pytorch", "computer-vision", "classification", "detection"]
+dependencies = []
+
+[project.scripts]
+sawit-ai = "sawit_ai.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sawit_ai*"]
+exclude = ["mode_sawit*"]
+
