@@ -16,11 +16,16 @@ app = typer.Typer(add_completion=False, no_args_is_help=True)
 
 
 @app.command()
-def download():
+def download(
+    force: bool = typer.Option(False, help="Ignore existing dataset and download fresh"),
+    out: Optional[str] = typer.Option(None, help="Optional subfolder under data/ to download into"),
+    legacy_fallback: bool = typer.Option(True, help="If targeted download yields nothing, retry without location (legacy)"),
+):
     """Download dataset from Roboflow using .env settings."""
     cfg = load_config()
     ensure_dir(path_from_root(cfg.data_dir))
-    download_dataset(cfg)
+    dest = download_dataset(cfg, overwrite=force, out=out, fallback_no_location=legacy_fallback)
+    success(f"Dataset ready at: {dest}")
 
 
 @app.command()

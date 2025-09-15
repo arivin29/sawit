@@ -110,3 +110,16 @@ python -m sawit_ai predict --source path/to/images_or_video
 - Add experiment tracking (e.g., Weights & Biases) by setting env vars and passing `project=`/`name=` in training.
 - Extend to segmentation if your dataset supports it.
 - Package this with a `pyproject.toml` or Dockerfile if you want reproducible deployments.
+
+
+
+python -m sawit_ai download  
+python -m sawit_ai download --force --out palm-fruit-ripeness-classification-2
+
+Siapkan full-train: python scripts/prepare_full_train.py --src data/palm-fruit-ripeness-classification-2 --dst data/palm-fruit-ripeness-classification-2-fulltrain --val-ratio 0.05
+Train: python -m sawit_ai train --dataset data/palm-fruit-ripeness-classification-2-fulltrain
+
+#gabungkan
+python scripts/prepare_full_train.py --src data/Palm-Fruit-2 --dst data/Palm-Fruit-2-fulltrain --val-ratio 0.05
+#jalankan train
+python -m sawit_ai train --dataset data/Palm-Fruit-2-fulltrain

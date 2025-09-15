@@ -8,7 +8,9 @@ _theme = Theme({
     "error": "bold red",
 })
 
-console = Console(theme=_theme)
+# Disable Rich markup to prevent errors when messages contain
+# square brackets that look like tags (e.g., "valid[/test]").
+console = Console(theme=_theme, markup=False)
 
 def info(msg: str):
     console.print(msg, style="info")
@@ -21,4 +23,3 @@ def warn(msg: str):
 
 def error(msg: str):
     console.print(msg, style="error")
-

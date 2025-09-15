@@ -19,6 +19,7 @@ logs/
 runs/
 artifacts/
 data/
+dataShetOld/
 outputs/
 .DS_Store
 **/.ipynb_checkpoints/
