@@ -18,6 +18,28 @@ python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pip install -e .
+
+Usage snippets
+
+- Train on existing dataset folder:
+  - `python -m sawit_ai train --dataset palm-fruit-ripeness-classification-2`
+  - Best weights copied to `artifacts/latest/best.pt`.
+
+- Predict on a folder of images and get a CSV summary:
+  - `python -m sawit_ai predict --source Coba/test1/image --weights artifacts/latest/best.pt`
+  - Optional custom output dir: `--out runs/my-predict`
+  - See `predictions.csv` under the output dir.
+
+- Export weights for deployment (e.g., to ONNX for TensorRT):
+  - `python -m sawit_ai export --weights artifacts/latest/best.pt --fmt onnx --opset 12`
+  - Omit `--weights` to auto-pick `artifacts/latest/best.pt`.
+
+- Build a full-train dataset (merge train/val/test, 5% stratified val):
+  - `python scripts/prepare_full_train.py --src palm-fruit-ripeness-classification-2 --dst palm-fruit-ripeness-classification-2-fulltrain --val-ratio 0.05`
+
+Notes
+
+- If you see a PyTorch pin_memory thread ConnectionResetError after training completes, it is typically benign and happens during interpreter shutdown on some environments.
 ```
 
 2) Configure `.env`:

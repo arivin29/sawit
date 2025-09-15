@@ -4,7 +4,7 @@ import typer
 
 from .utils.env import load_config
 from .utils.paths import ensure_dir, path_from_root
-from .utils.logging import info, success
+from .utils.logging import info, success, warn
 from .data.roboflow import download_dataset
 from .train.detect import train_detection
 from .train.classify import train_classification
@@ -50,17 +50,48 @@ def predict(
     source: str = typer.Option(..., help="Path to image/video/folder/glob"),
     weights: Optional[str] = typer.Option(None, help="Path to .pt weights to use"),
     nosave: bool = typer.Option(False, help="Do not save output visuals"),
+    out: Optional[str] = typer.Option(None, help="Optional output dir for predictions"),
 ):
     """Run inference on images/videos using latest or provided weights."""
     cfg = load_config()
     if cfg.task.lower() == "detect":
-        predict_detection(cfg, source=source, weights=weights, save=not nosave)
+        predict_detection(cfg, source=source, weights=weights, save=not nosave, out_dir=out)
     elif cfg.task.lower() == "classify":
-        predict_classification(cfg, source=source, weights=weights, save=not nosave)
+        predict_classification(cfg, source=source, weights=weights, save=not nosave, out_dir=out)
     else:
         raise typer.BadParameter("TASK must be one of: detect, classify")
 
 
+@app.command()
+def export(
+    weights: Optional[str] = typer.Option(None, help="Path to .pt weights to export (defaults to artifacts/latest/best.pt)"),
+    fmt: str = typer.Option("onnx", help="Export format: onnx, torchscript, openvino, engine (TensorRT), coreml, tf, tflite"),
+    opset: int = typer.Option(12, help="ONNX opset when format=onnx"),
+    half: bool = typer.Option(False, help="FP16 where supported"),
+):
+    """Export trained weights to deployment formats (e.g., ONNX for TensorRT)."""
+    cfg = load_config()
+    from ultralytics import YOLO
+    from .utils.yolo import resolve_default_weights
+
+    resolved = resolve_default_weights(cfg.runs_dir, cfg.artifacts_dir, task=cfg.task.lower(), explicit=weights)
+    if not resolved or not resolved.exists():
+        raise typer.BadParameter("Weights not found. Provide --weights or train a model first.")
+    info(f"Exporting weights: {resolved}")
+
+    model = YOLO(str(resolved))
+    kwargs = {}
+    if fmt == "onnx":
+        kwargs.update({"opset": opset})
+    if half:
+        kwargs.update({"half": True})
+    try:
+        out = model.export(format=fmt, **kwargs)
+        success(f"Exported: {out}")
+    except Exception as e:
+        warn(f"Export failed: {e}")
+        raise
+
+
 def main():
     app()
-

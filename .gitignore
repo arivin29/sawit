@@ -7,6 +7,7 @@ venv/
 dist/
 build/
 pip-wheel-metadata/
+palm-fruit-ripeness-classification-2/
 *.log
 logs/
 *.ckpt
